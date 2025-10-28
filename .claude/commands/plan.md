@@ -1,7 +1,7 @@
 ---
 description: Create an implementation plan for the analyzed requirements
 argument-hint: [feature or reference to analysis]
-allowed-tools: Read, Grep, Glob
+allowed-tools: Read, Grep, Glob, Write, Bash
 ---
 
 # Implementation Planning Phase
@@ -11,6 +11,8 @@ You are in the **planning phase** of the workflow. Your goal is to create a deta
 ## Your Task
 
 Create an implementation plan for: **$ARGUMENTS**
+
+**IMPORTANT**: After creating the plan, you MUST save it to the `documentation/plans/` directory with a descriptive filename in kebab-case format (e.g., `documentation/plans/001-repository-setup.md`, `documentation/plans/002-grade-value-object.md`). Use sequential numbering if multiple plans exist.
 
 ## What to Do
 
