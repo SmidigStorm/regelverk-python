@@ -40,20 +40,39 @@ Following Clean Architecture:
 ```
 regelverk-python/
 ├── src/
-│   ├── domain/              # Domain layer (entities, value objects)
-│   ├── application/         # Application layer (use cases, ports)
-│   ├── infrastructure/      # Infrastructure layer (repositories, adapters)
-│   └── presentation/        # Presentation layer (API, CLI)
+│   ├── domain/              # Domain layer - core business logic
+│   │   ├── entities/        # Objects with identity
+│   │   ├── value_objects/   # Immutable value types
+│   │   ├── aggregates/      # Aggregate roots
+│   │   ├── services/        # Domain services
+│   │   ├── events/          # Domain events
+│   │   ├── specifications/  # Reusable business rules
+│   │   ├── policies/        # Complex business decisions
+│   │   ├── factories/       # Object creation logic
+│   │   ├── ports.py         # Repository interfaces
+│   │   └── exceptions.py    # Domain exceptions
+│   ├── application/         # Application layer
+│   │   ├── use_cases/       # Application business logic
+│   │   └── dtos/            # Data transfer objects
+│   ├── infrastructure/      # Infrastructure layer
+│   │   ├── persistence/     # Database repositories
+│   │   ├── config/          # Configuration
+│   │   └── external/        # External system adapters
+│   └── presentation/        # Presentation layer
+│       └── api/             # REST API (FastAPI)
 ├── tests/
 │   ├── unit/               # Fast isolated tests
 │   ├── integration/        # Component interaction tests
-│   └── e2e/               # End-to-end tests
-├── requirements/           # Requirements and specifications
-│   ├── user-stories/
-│   └── features/          # Gherkin .feature files
+│   ├── e2e/               # End-to-end tests
+│   └── features/          # Gherkin .feature files (BDD)
+├── documentation/          # Project documentation
+│   ├── requirements/      # User stories and specifications
+│   ├── architecture/      # Architecture decisions
+│   ├── plans/            # Implementation plans
+│   └── domain-glossary.md # Ubiquitous language definitions
 └── .claude/
     ├── skills/            # Software development skills
-    └── commands/          # Custom slash commands (to be added)
+    └── commands/          # Custom slash commands
 ```
 
 ## Development Principles

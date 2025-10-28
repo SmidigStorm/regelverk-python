@@ -9,19 +9,35 @@ You are assisting with code that must follow Domain-Driven Design principles.
 
 ## Core Concept
 
-**Focus on the Domain**: The heart of software is its domain model - the conceptual model of the problem domain that incorporates both behavior and data.
+**Focus on the Domain**: The heart of software is its domain model - the conceptual model of the problem domain that incorporates both behavior and data. DDD enables developers to translate complex problem domains into rich, expressive, and evolving software.
+
+**When to Use DDD**:
+- Complex business requirements that go beyond CRUD operations
+- Business logic that cannot be adequately expressed through simple data structures
+- Domains where standard architectural patterns feel insufficient
+- Systems requiring deep domain understanding and continuous evolution
+
+**When NOT to Use DDD**:
+- Simple CRUD applications
+- When business logic is minimal
+- Projects with tight deadlines and simple requirements
+- Team lacks OOP fundamentals and SOLID principles understanding
 
 ## Strategic Design
 
 ### Ubiquitous Language
+The foundation of DDD is discovering and using shared terminology through conversations with domain experts. This common vocabulary ensures code reflects real-world business processes rather than arbitrary technical abstractions.
+
+**Principles**:
 - Use the same terms in code as domain experts use
 - No translation layer between business and code
 - Class names, method names, variables match domain vocabulary
+- The language evolves as understanding deepens
 
 **For Norwegian admission system**:
 - Use Norwegian domain terms: `Opptakskrav`, `Karakterpoeng`, `Kvote`
 - Or agreed English equivalents: `AdmissionRequirement`, `GradePoints`, `Quota`
-- Avoid generic terms: `Rule`, `Data`, `Manager`
+- Avoid generic terms: `Rule`, `Data`, `Manager`, `Processor`, `Handler`
 
 ### Bounded Contexts
 Separate domain models into distinct boundaries based on different meanings of the same terms.
@@ -97,13 +113,15 @@ class CompetencePoints:
 ```
 
 ### 3. Aggregates
-Cluster of entities and value objects with defined boundaries.
+Cluster of entities and value objects with defined boundaries. Aggregates are crucial for maintaining consistency and controlling access to the domain model.
 
 **Rules**:
-- One entity is the Aggregate Root
-- External objects can only reference the root
-- Root enforces invariants
+- One entity is the Aggregate Root (the entry point)
+- External objects can only reference the root (never internal entities)
+- Root enforces all invariants across the aggregate
 - Transaction boundaries align with aggregates
+- Keep aggregates as small as possible for performance
+- External references point only to roots, preventing external manipulation of internal state
 
 ```python
 class AdmissionApplication:
@@ -130,12 +148,17 @@ class AdmissionApplication:
 ```
 
 ### 4. Domain Services
-Operations that don't naturally belong to an entity or value object.
+Stateless operations that handle domain logic which doesn't naturally belong to any single entity or value object. Domain services often orchestrate multiple aggregates.
 
 **Use when**:
 - Operation involves multiple domain objects
-- Operation is a significant domain concept
-- Operation is stateless
+- Operation is a significant domain concept in itself
+- Operation is stateless (no instance variables)
+- Forcing the behavior into an entity would feel unnatural
+
+**Avoid when**:
+- The behavior naturally belongs to a specific entity
+- It would create an anemic domain model by extracting entity behavior
 
 ```python
 class AdmissionEvaluationService:
@@ -156,13 +179,20 @@ class AdmissionEvaluationService:
 ```
 
 ### 5. Domain Events
-Something that happened in the domain that domain experts care about.
+Objects representing significant business occurrences that domain experts care about. Domain events decouple and coordinate complex workflows across subdomains.
 
 **Characteristics**:
-- Past tense naming
-- Immutable
-- Contains relevant data
+- Past tense naming (describes what happened)
+- Immutable (events cannot be changed)
+- Contains all relevant data for the event
 - Timestamped
+- Represent facts that have occurred in the domain
+
+**Benefits**:
+- Loose coupling between bounded contexts
+- Audit trail of domain changes
+- Enable event-driven architectures
+- Support eventual consistency patterns
 
 ```python
 @dataclass(frozen=True)
@@ -182,12 +212,18 @@ class QuotaFilled:
 ```
 
 ### 6. Repositories
-Provide illusion of in-memory collection of aggregates.
+Data access abstractions that provide the illusion of an in-memory collection of aggregates. Repositories enable persistence ignorance, allowing you to switch storage technologies without affecting domain logic.
 
 **Responsibilities**:
 - Add/remove aggregates
 - Find aggregates by criteria
 - Reconstitute aggregates from storage
+- Work exclusively with aggregate roots, not individual entities
+
+**Key Benefits**:
+- Domain layer stays independent of infrastructure
+- Easier to test with in-memory implementations
+- Can swap persistence strategies (SQL, NoSQL, file system) transparently
 
 ```python
 class AdmissionRuleRepository(Protocol):
@@ -310,15 +346,17 @@ class Quota:
 
 ## Rich Domain Model vs Anemic Domain Model
 
-### Anemic (BAD)
+A **rich domain model** encapsulates business rules and logic within cohesive objects, protecting business concerns from infrastructure details. An **anemic domain model** separates data from behavior, resulting in procedural code disguised as objects.
+
+### Anemic (BAD - Avoid)
 ```python
-# Just data, no behavior
+# Just data, no behavior - violates OOP principles
 class Student:
     def __init__(self):
         self.name = ""
         self.grades = []
 
-# Logic elsewhere
+# Logic scattered in services
 def calculate_points(student):
     total = 0
     for grade in student.grades:
@@ -326,9 +364,16 @@ def calculate_points(student):
     return total
 ```
 
-### Rich (GOOD)
+**Problems with Anemic Models**:
+- Business logic scattered across service classes
+- Data structures exposed and vulnerable to invalid states
+- Difficult to maintain consistency and enforce invariants
+- Loses benefits of encapsulation and OOP
+- Cognitive load increases as codebase grows
+
+### Rich (GOOD - Prefer)
 ```python
-# Data + behavior together
+# Data + behavior together - proper encapsulation
 class Student:
     def __init__(self, name: str):
         self._name = name
@@ -346,6 +391,24 @@ class Student:
         return CompetencePoints(total)
 ```
 
+**Benefits of Rich Models**:
+- Encapsulation: Business logic isolated from infrastructure
+- Testability: Pure domain logic is easier to test
+- Maintainability: Clear mental models reduce cognitive load
+- Scalability: As complexity grows, structure prevents degradation
+
+## Why DDD Matters: Cognitive Load and Mental Models
+
+**The Central Problem**: As codebases grow, cognitive load increases. Understanding how changes impact the system becomes difficult.
+
+**DDD's Solution**: Create clear mental models that:
+- Reduce cognitive load through well-defined boundaries
+- Improve as the system grows (rather than degrade)
+- Make the codebase easier to reason about over time
+- Enable faster onboarding and safer changes
+
+**Key Insight**: Without DDD structure, complexity overwhelms developers as systems scale. With DDD, the architecture provides a mental framework that remains comprehensible even as features multiply.
+
 ## Code Review Checklist
 
 - [ ] Does code use ubiquitous language from domain?
@@ -357,6 +420,8 @@ class Student:
 - [ ] Are domain events captured for significant happenings?
 - [ ] Do repositories work with aggregate roots?
 - [ ] Are bounded contexts clearly separated?
+- [ ] Does the code reduce cognitive load through clear structure?
+- [ ] Will this design scale as complexity grows?
 
 ## Practical Application for Admission Rules
 
@@ -390,6 +455,35 @@ class Student:
 - `StudentRepository`
 - `ProgramRepository`
 
+## Prerequisites for DDD Success
+
+Before adopting DDD patterns, developers should understand:
+- Object-oriented programming fundamentals
+- SOLID principles (especially Single Responsibility and Dependency Inversion)
+- Design patterns (Strategy, Factory, Specification)
+- Separation of concerns
+- Interface-based design
+
+**Start Simple**: Don't apply all DDD patterns immediately. Begin with:
+1. Ubiquitous language
+2. Rich domain models (avoid anemic models)
+3. Clear entity vs value object distinction
+4. Then gradually adopt aggregates, domain events, specifications
+
+## Managing DDD Complexity
+
+**Progressive Enhancement**:
+- Start with basic entities and value objects
+- Add aggregates when consistency boundaries become clear
+- Introduce domain events when decoupling is needed
+- Apply specifications when rule combinations emerge
+
+**Avoid Over-Engineering**:
+- Not every class needs to be an aggregate
+- Not every operation needs a domain service
+- Not every change needs a domain event
+- Keep it simple until complexity demands structure
+
 ## Response Format
 
 When applying DDD:
@@ -399,3 +493,4 @@ When applying DDD:
 4. Protect invariants within aggregates
 5. Use rich domain models with behavior
 6. Capture domain events for significant changes
+7. Start simple and add patterns as complexity grows
