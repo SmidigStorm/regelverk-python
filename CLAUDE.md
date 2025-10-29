@@ -41,15 +41,22 @@ Following Clean Architecture:
 regelverk-python/
 ├── src/
 │   ├── domain/              # Domain layer - core business logic
-│   │   ├── entities/        # Objects with identity
-│   │   ├── value_objects/   # Immutable value types
-│   │   ├── aggregates/      # Aggregate roots
+│   │   ├── aggregates/      # Aggregates (organized by aggregate root)
+│   │   │   ├── education/   # Education aggregate
+│   │   │   │   ├── education.py              # Aggregate root entity
+│   │   │   │   ├── education_id.py           # Identity value object
+│   │   │   │   ├── education_state.py        # State value object
+│   │   │   │   └── education_repository.py   # Repository interface
+│   │   │   └── ruleset/     # Ruleset aggregate (future)
+│   │   ├── shared/          # Shared value objects across aggregates
+│   │   │   ├── intake_term.py
+│   │   │   ├── study_mode.py
+│   │   │   └── admission_process_id.py
 │   │   ├── services/        # Domain services
 │   │   ├── events/          # Domain events
 │   │   ├── specifications/  # Reusable business rules
 │   │   ├── policies/        # Complex business decisions
 │   │   ├── factories/       # Object creation logic
-│   │   ├── ports.py         # Repository interfaces
 │   │   └── exceptions.py    # Domain exceptions
 │   ├── application/         # Application layer
 │   │   ├── use_cases/       # Application business logic

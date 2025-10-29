@@ -16,10 +16,28 @@ Create an implementation plan for: **$ARGUMENTS**
 
 ## What to Do
 
-### 1. Review Requirements
-- Read the requirements analysis (if provided)
-- Understand user stories and acceptance criteria
-- Identify all Gherkin scenarios to implement
+### 1. Review Requirements and Domain Knowledge
+
+**IMPORTANT**: Before planning, you MUST read:
+
+1. **Feature file** from `tests/features/[domain-area]/[feature-name].feature`
+   - Contains executable Gherkin scenarios
+   - Defines acceptance criteria (Given/When/Then)
+   - Shows all edge cases and error scenarios
+
+2. **Domain knowledge** from `documentation/domain-knowledge/`
+   - Look for `aggregate-root-[name].md`, `entity-[name].md`, `value-object-[name].md`
+   - Understand entity structure, business rules, invariants
+   - Identify relationships to other aggregates
+
+**How to find these files:**
+- Use Glob to find feature files: `tests/features/**/*.feature`
+- Use Glob to find domain docs: `documentation/domain-knowledge/**/*.md`
+- Read the relevant files matching the feature name
+
+**If files don't exist:**
+- Ask user to run `/domain` first for domain understanding
+- Ask user to run `/analyze` first for Gherkin scenarios
 
 ### 2. Break Down into Tasks
 Create a step-by-step implementation plan following:

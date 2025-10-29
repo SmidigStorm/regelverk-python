@@ -57,3 +57,25 @@ Provide a clear explanation of the domain concept including:
 - Ubiquitous language terms (Norwegian and English)
 
 Use the **domain-driven-design** skill automatically to guide your analysis.
+
+## Documentation
+
+**IMPORTANT**: After completing the domain exploration, create or update a summary document in `documentation/domain-knowledge/`:
+
+- For **Aggregate Roots**: Create `aggregate-root-{name}.md`
+- For **Entities**: Create `entity-{name}.md`
+- For **Value Objects**: Create `value-object-{name}.md`
+- For **Domain Services**: Create `domain-service-{name}.md`
+- For **General Concepts**: Create `concept-{name}.md`
+
+The document should include:
+- Date and status
+- Definition and examples
+- DDD pattern classification
+- Attributes and structure
+- Business rules and invariants
+- Relationships to other domain concepts
+- Domain events (if applicable)
+- Design decisions and rationale
+- Open questions
+- Next steps
